@@ -1,12 +1,15 @@
 [project]
 name = "aim-mcp-server"
-version = "0.1.0"
-description = "MCP server for VEX AIM robot control"
-requires-python = ">=3.8"
+version = "0.5.0"
+description = "MCP server for VEX AIM robot control (82 tools)"
+requires-python = ">=3.10"
 dependencies = [
     "mcp[cli]>=1.0.0",
     "pydantic>=2.0",
 ]
+
+[project.optional-dependencies]
+Pillow = ["Pillow>=10.0.0"]
 
 [project.scripts]
 aim-mcp-server = "aim_mcp.server:main"

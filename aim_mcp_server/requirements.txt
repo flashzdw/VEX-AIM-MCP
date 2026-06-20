@@ -1,3 +1,5 @@
 mcp[cli]>=1.0.0
 pydantic>=2.0
 -e ../websocket/AIM_Websocket_Library
+# 可选：图像叠加功能需要（Pillow 未安装时 aim_capture_with_overlay 自动降级）
+Pillow>=10.0.0

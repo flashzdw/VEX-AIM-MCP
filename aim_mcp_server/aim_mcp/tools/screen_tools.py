@@ -1,8 +1,11 @@
 """
 AIM MCP Server - 屏幕工具
 
-封装 VEX AIM 库的 Screen 相关 API，共 13 个工具。
+封装 VEX AIM 库的 Screen 相关 API，共 22 个工具。
 """
+
+import threading
+from typing import List, Optional
 
 import vex as vex_types
 
@@ -41,8 +44,12 @@ def _screen():
     return robot_manager.get_robot().screen
 
 
+def _robot():
+    return robot_manager.get_robot()
+
+
 # ----------------------------------------------------------------------
-# 屏幕工具
+# 基础屏幕工具
 # ----------------------------------------------------------------------
 @register_tool(
     name="aim_print_screen",
@@ -174,3 +181,191 @@ def aim_show_emoji(emoji: str, look: str = "LOOK_FORWARD") -> str:
 def aim_hide_emoji() -> str:
     _screen().hide_emoji()
     return "已隐藏 emoji"
+
+
+# ----------------------------------------------------------------------
+# 高级屏幕工具（S1~S9）
+# ----------------------------------------------------------------------
+_EMOJI_STOP = threading.Event()
+_EMOJI_THREAD: Optional[threading.Thread] = None
+
+
+@register_tool(
+    name="aim_show_battery_gauge",
+    description=(
+        "读取当前电池电量，在屏幕上画一个电池图标 + 百分比数字。"
+        "配色：>30% 绿、>15% 黄、≤15% 红。"
+    ),
+)
+def aim_show_battery_gauge(x: int = 20, y: int = 20, width: int = 80, height: int = 30) -> str:
+    pct = _robot().battery.capacity()
+    if pct > 30:
+        fill = "GREEN"
+    elif pct > 15:
+        fill = "YELLOW"
+    else:
+        fill = "RED"
+    sc = _screen()
+    sc.set_fill_color(_parse_color(fill))
+    sc.set_pen_color(_parse_color("WHITE"))
+    bar_w = int(width * pct / 100)
+    sc.draw_rectangle(x, y, bar_w, height)
+    sc.set_fill_color(_parse_color("TRANSPARENT"))
+    sc.set_pen_color(_parse_color("WHITE"))
+    sc.draw_rectangle(x, y, width, height)
+    sc.print_at(f"{pct}%", x + width + 4, y + height // 2 - 8)
+    return f"已绘制电池仪表盘 {pct}%"
+
+
+@register_tool(
+    name="aim_show_emotion_sequence",
+    description=(
+        "按 JSON 数组顺序循环显示表情（后台线程）。"
+        "再次调用会替换前一次的轮播；用 aim_stop_emotion_sequence 停止。"
+    ),
+)
+def aim_show_emotion_sequence(
+    emotions: List[str],
+    interval_ms: int = 1000,
+    loop: bool = True,
+    look: str = "LOOK_FORWARD",
+) -> str:
+    global _EMOJI_THREAD
+    lk = look.upper()
+    if lk not in _LOOK_MAP:
+        return f"不支持的 look: {look}"
+    normalized = [e.upper() for e in emotions]
+    bad = [e for e in normalized if e not in _EMOJI_MAP]
+    if bad:
+        return f"不支持的 emoji: {bad}"
+
+    _EMOJI_STOP.set()
+    _EMOJI_STOP.clear()
+
+    def _run():
+        sc = _screen()
+        while not _EMOJI_STOP.is_set():
+            for e in normalized:
+                if _EMOJI_STOP.is_set():
+                    break
+                try:
+                    sc.show_emoji(_EMOJI_MAP[e], _LOOK_MAP[lk])
+                except Exception:
+                    pass
+                _EMOJI_STOP.wait(timeout=max(0.1, interval_ms / 1000.0))
+            if not loop:
+                break
+
+    _EMOJI_THREAD = threading.Thread(target=_run, daemon=True)
+    _EMOJI_THREAD.start()
+    return f"已启动表情轮播：{emotions}（间隔 {interval_ms}ms, loop={loop}）"
+
+
+@register_tool(
+    name="aim_stop_emotion_sequence",
+    description="停止由 aim_show_emotion_sequence 启动的表情轮播。",
+)
+def aim_stop_emotion_sequence() -> str:
+    _EMOJI_STOP.set()
+    return "已请求停止表情轮播"
+
+
+@register_tool(
+    name="aim_show_image_file",
+    description=(
+        "从本地文件加载 bmp/png 图片并显示在屏幕指定坐标。"
+        "文件需先通过 VEX 文件管理上传到机器人。"
+    ),
+)
+def aim_show_image_file(path: str, x: int = 0, y: int = 0) -> str:
+    import os
+    if not os.path.isfile(path):
+        return f"文件不存在: {path}"
+    try:
+        _screen().show_image(path, x, y)
+    except Exception as e:
+        return f"显示图片失败: {e}"
+    return f"已显示图片 {path} @ ({x},{y})"
+
+
+@register_tool(
+    name="aim_set_screen_font",
+    description=(
+        "切换屏幕字体。"
+        "可选：MONO12/15/20/24/30/36/40/60 或 PROP20/24/30/36/40/60。"
+    ),
+)
+def aim_set_screen_font(font: str) -> str:
+    try:
+        font_type = getattr(vex_types.FontType, font.upper())
+    except AttributeError:
+        names = [a for a in dir(vex_types.FontType) if not a.startswith("_")]
+        return f"不支持的字体: {font}，可选: {names}"
+    _screen().set_font(font_type)
+    return f"字体已设为 {font.upper()}"
+
+
+@register_tool(
+    name="aim_clear_row",
+    description="清除屏幕的某一行，可指定背景色。",
+)
+def aim_clear_row(row: int, color: str = "BLUE") -> str:
+    try:
+        c = _parse_color(color)
+    except ValueError as e:
+        return str(e)
+    _screen().clear_row(row, c)
+    return f"已清除第 {row} 行（背景 {color.upper()}）"
+
+
+@register_tool(
+    name="aim_set_screen_origin",
+    description="重新定义屏幕坐标系的原点 (0, 0)；后续 print_at / draw_* 都会相对新原点。",
+)
+def aim_set_screen_origin(x: int = 0, y: int = 0) -> str:
+    _screen().set_origin(x, y)
+    return f"屏幕原点已设为 ({x}, {y})"
+
+
+@register_tool(
+    name="aim_set_screen_clip",
+    description="限制后续绘图只在 (x, y, width, height) 矩形区域内。便于做分屏/对话框效果。",
+)
+def aim_set_screen_clip(x: int, y: int, width: int, height: int) -> str:
+    _screen().set_clip_region(x, y, width, height)
+    return f"屏幕裁剪区域已设为 ({x},{y}) {width}x{height}"
+
+
+@register_tool(
+    name="aim_draw_progress_bar",
+    description=(
+        "在屏幕指定位置画一个水平进度条 + 百分比数字。"
+        "颜色逻辑：>=30% GREEN / >=10% YELLOW / <10% RED。color=AUTO 自动按阈值选色。"
+    ),
+)
+def aim_draw_progress_bar(
+    x: int = 20,
+    y: int = 20,
+    width: int = 120,
+    height: int = 20,
+    percent: int = 50,
+    color: str = "AUTO",
+) -> str:
+    if color.upper() == "AUTO":
+        if percent >= 30:
+            color = "GREEN"
+        elif percent >= 10:
+            color = "YELLOW"
+        else:
+            color = "RED"
+    try:
+        c = _parse_color(color)
+    except ValueError as e:
+        return str(e)
+    sc = _screen()
+    sc.set_fill_color(c)
+    sc.draw_rectangle(x, y, int(width * percent / 100), height)
+    sc.set_pen_color(_parse_color("WHITE"))
+    sc.draw_rectangle(x, y, width, height)
+    sc.print_at(f"{percent}%", x + width + 4, y + height // 2 - 8)
+    return f"已绘制进度条 {percent}%（color={color.upper()}）"

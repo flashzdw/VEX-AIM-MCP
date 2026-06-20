@@ -29,7 +29,7 @@ from mcp.client.stdio import stdio_client
 # ----------------------------------------------------------------------
 # 路径与服务器启动参数
 # ----------------------------------------------------------------------
-# tests/ -> aim_mcp_server/ -> AiVision-Test/
+# tests/ -> aim_mcp_server/ -> VEX-AIM-MCP/
 ROOT = Path(__file__).resolve().parent.parent.parent
 SERVER_DIR = ROOT / "aim_mcp_server"
 
@@ -98,11 +98,12 @@ def extract_text(result: Any) -> str:
 # 测试：列表类（不依赖连接）
 # ----------------------------------------------------------------------
 async def test_tools_list() -> None:
-    """测试 MCP 服务器能列出所有工具；预期 61 个。"""
+    """测试 MCP 服务器能列出所有工具；预期 82 个（运动 16 / 视觉 18 / 踢球 2 / LED 4 / 声音 5 / 屏幕 22 / 传感器 9 / 连接 6）。"""
     async with open_session() as session:
         result = await session.list_tools()
         tools = result.tools
         assert len(tools) > 0, "未返回任何工具"
+        assert len(tools) == 82, f"工具数应为 82，实际为 {len(tools)}"
 
         # 验证若干关键工具存在
         names = {t.name for t in tools}

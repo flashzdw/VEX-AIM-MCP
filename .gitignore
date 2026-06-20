@@ -1,0 +1,116 @@
+# =============================================================================
+# VEX AIM MCP Server —— 根 .gitignore
+# 用途：把构建产物、虚拟环境、IDE 配置、Trae 工作目录全部屏蔽，
+#       只保留项目源代码与文档上传到 GitHub。
+# =============================================================================
+
+# ---------- 1. Python 编译/缓存产物 ----------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+*.whl
+build/
+dist/
+.eggs/
+
+# egg-info（setuptools 生成的包元数据，任何目录都屏蔽）
+**/*.egg-info/
+**/*.egg-info/**
+
+
+# ---------- 2. 虚拟环境 ----------
+# 根目录和子目录里的 venv 全部屏蔽
+.venv/
+venv/
+env/
+ENV/
+aim_mcp_venv/
+.aim_mcp_venv/
+
+# 子目录里的 venv
+**/venv/
+**/.venv/
+**/env/
+**/ENV/
+
+
+# ---------- 3. IDE / 编辑器 ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+
+# ---------- 4. Trae IDE 工作目录 ----------
+# Trae 的本地工作数据（计划文档、临时文件、IDE 私有状态）
+# .TRAE/ 与 .trae/ 是同一目录（macOS 大小写不敏感），两种写法都加上
+.TRAE/
+.trae/
+
+
+# ---------- 5. 测试 / 覆盖率产物 ----------
+# 保留测试源码，只屏蔽运行产物
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+.cache
+.mypy_cache/
+.ruff_cache/
+
+
+# ---------- 6. 日志 / 临时文件 ----------
+*.log
+*.tmp
+*.bak
+*.pid
+*.seed
+*.pid.lock
+
+
+# ---------- 7. 机器人抓拍的本地图片 ----------
+# 运行时 aim_capture_with_overlay / aim_get_camera_image 等工具的输出
+# 默认会落在 /tmp 或仓库根目录，避免误传二进制
+/tmp/
+captures/
+screenshots/
+
+
+# ---------- 8. 环境配置 / 密钥 ----------
+# 本地配置 / 真实 IP / 任何形式的密钥
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets.yaml
+secrets.json
+
+
+# ---------- 9. 操作系统垃圾 ----------
+Desktop.ini
+ehthumbs.db
+ehthumbs_vista.db
+$RECYCLE.BIN/
+.Trashes/
+
+
+# =============================================================================
+# 仍会上传的（仅作备忘，不在 .gitignore 中）：
+#   - aim_mcp_server/             # 全部 MCP 服务器源码 + tests/ 源码
+#   - websocket/AIM_Websocket_Library/  # VEX 官方底层库（作为 git submodule）
+#   - skills/                     # 顶层 skill 目录（aim-mcp-controller 等）
+#   - docs/                       # 架构文档
+#   - README.md / aim_mcp_server/README.md
+#   - .gitmodules                 # VEX 库子模块引用
+#   - .github/                    # Issue 模板、CI 配置文件（如有）
+# =============================================================================

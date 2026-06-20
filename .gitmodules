@@ -1,0 +1,3 @@
+[submodule "websocket/AIM_Websocket_Library"]
+	path = websocket/AIM_Websocket_Library
+	url = https://github.com/VEX-Robotics/AIM_Websocket_Library.git

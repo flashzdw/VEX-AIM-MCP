@@ -4,7 +4,7 @@
 
 ## 项目简介
 
-AIM MCP Server 是基于 [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) 标准的服务器实现，将 VEX AIM 机器人底层的 Python API 封装为 **67 个标准 MCP 工具**、**3 个 Resources** 和 **3 个 Prompts**。任何支持 MCP 的 AI Agent 通过 stdio 传输即可调用，Agent 可基于用户自然语言指令自动完成"前进、转向、视觉识别、踢球、显示表情、播放音效"等机器人操作。
+AIM MCP Server 是基于 [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) 标准的服务器实现，将 VEX AIM 机器人底层的 Python API 封装为 **82 个标准 MCP 工具**、**3 个 Resources** 和 **3 个 Prompts**。任何支持 MCP 的 AI Agent 通过 stdio 传输即可调用，Agent 可基于用户自然语言指令自动完成"前进、转向、视觉识别、踢球、显示表情、播放音效"等机器人操作。
 
 底层复用 `websocket/AIM_Websocket_Library/vex` 库，通过 WebSocket 与 VEX AIM 机器人通信，无需额外驱动。
 
@@ -29,7 +29,7 @@ graph LR
 ```
 
 - **AI Agent**：通过 stdio 启动 MCP 客户端，按 MCP 协议发送 `tools/call` 请求。
-- **aim-mcp-server**：监听 stdio，解析请求并分派到 61 个工具实现。
+- **aim-mcp-server**：监听 stdio，解析请求并分派到 82 个工具实现。
 - **vex library**：本地 `websocket/AIM_Websocket_Library/vex`，提供 `Robot` 单例封装。
 - **VEX AIM Robot**：实际硬件，通过 WebSocket 接收控制指令并返回状态 JSON。
 
@@ -370,5 +370,5 @@ aim_mcp_server/
 
 - [MCP 协议规范](https://modelcontextprotocol.io/)
 - [VEX AIM WebSocket Library](../websocket/AIM_Websocket_Library/)
-- [.TRAE/skills/vex-aim-programming](../.TRAE/skills/vex-aim-programming/SKILL.md) — 编写 AIM 机器人 Python 代码的 Skill
-- [.TRAE/documents/aim-mcp-architecture.md](../.TRAE/documents/aim-mcp-architecture.md) — 架构设计文档
+- [skills/vex-aim-programming](../skills/vex-aim-programming/SKILL.md) — 编写 AIM 机器人 Python 代码的 Skill
+- [docs/aim-mcp-architecture.md](../docs/aim-mcp-architecture.md) — 架构设计文档
