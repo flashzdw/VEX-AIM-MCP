@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: aim-mcp-server
+Version: 0.1.0
+Summary: MCP server for VEX AIM robot control
+Requires-Python: >=3.8
+Requires-Dist: mcp[cli]>=1.0.0
+Requires-Dist: pydantic>=2.0

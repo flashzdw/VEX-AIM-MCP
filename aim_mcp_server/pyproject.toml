@@ -1,0 +1,19 @@
+[project]
+name = "aim-mcp-server"
+version = "0.1.0"
+description = "MCP server for VEX AIM robot control"
+requires-python = ">=3.8"
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "pydantic>=2.0",
+]
+
+[project.scripts]
+aim-mcp-server = "aim_mcp.server:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["aim_mcp*"]

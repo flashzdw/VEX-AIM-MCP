@@ -1,0 +1,12 @@
+{
+  "_comment": "Claude Desktop MCP 配置文件片段。将本文件内容（去掉 _comment 字段）复制到 ~/Library/Application Support/Claude/claude_desktop_config.json 即可生效。复制前请把 __MCP_SERVER_PATH__ 替换为 aim-mcp-server 可执行文件的绝对路径。可通过 `which aim-mcp-server`（需先激活 aim_mcp_venv）查询。",
+  "mcpServers": {
+    "aim": {
+      "command": "__MCP_SERVER_PATH__",
+      "env": {
+        "AIM_ROBOT_HOST": "192.168.1.100",
+        "AIM_ROBOT_PORT": "80"
+      }
+    }
+  }
+}
