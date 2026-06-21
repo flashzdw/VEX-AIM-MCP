@@ -437,7 +437,7 @@ python -m aim_mcp.server
 - [VEX Robotics](https://www.vexrobotics.com/) 出品 AIM 机器人
 - [Model Context Protocol](https://modelcontextprotocol.io/) 提供统一标准
 - [FastMCP](https://github.com/jlowin/fastmcp) 提供 Python SDK
-- 我的 VEX 队友们一直支持我做这个"不务正业"的项目 ❤️
+- 我的 VEX 队友们一直支持我做这个项目
 
 ## License
 
